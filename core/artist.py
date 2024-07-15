@@ -1,12 +1,15 @@
 # Artist class
 
+# pylint: disable=W0622
+# pylint: disable=E0401
+
 import requests
-from .access_token import AccessTokenClass
+
 
 class Artist:
     pass
 
-def GetArtistById(id: str, auth: AccessTokenClass) -> Artist:
+def GetArtistById(id: str, auth) -> Artist:
     """
     Retrieve album and return Album object.
 

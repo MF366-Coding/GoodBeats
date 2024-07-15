@@ -1,9 +1,12 @@
 # Get access token.
 
+# pylint: disable=W0622
+# pylint: disable=E0401
+
 import json
 import os
 import requests
-import base64
+
 
 class AccessTokenClass:
     access_token: str
@@ -17,12 +20,14 @@ class AccessTokenClass:
         """
         Generate access token.
         """
-        # Read secret.json
-        # imagine not having access to it
+        # [*] Read secret.json
+        # [!?] imagine not having access to it
 
         where_are_we = os.path.dirname(__file__)
+        
         with open(f"{where_are_we}/secret.json", "rt", encoding="UTF-8") as secret:
             values = json.loads(secret.read())
+            
             some_shite = requests.post(
                 "https://accounts.spotify.com/api/token",
                 data={
@@ -31,5 +36,6 @@ class AccessTokenClass:
                     "client_secret": values['ClientSecret']
                 }
             )
-            # This took 2 hours to figure out btw ^^^^^^^^^^^^^^^^^^
+            
+            # [i] This took 2 hours to figure out btw ^^^^^^^^^^^^^^^^^^ (skill issue :trollface:)
             self.access_token, self.token_type = some_shite.json()["access_token"], some_shite.json()["token_type"]

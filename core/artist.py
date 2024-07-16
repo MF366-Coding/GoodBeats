@@ -11,11 +11,11 @@ class Artist:
 
 def GetArtistById(id: str, auth) -> Artist:
     """
-    Retrieve album and return Album object.
+    Retrieve artist and return Artist object.
 
-    :param id: Album id.
+    :param id: Artist id.
     :param auth: of type AccessTokenClass.
-    :return: Album object.
+    :return: Artist object.
     """
     base_url = f"https://api.spotify.com/v1/artists/{id}"
     artist_data = requests.get(

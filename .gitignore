@@ -8,6 +8,8 @@ __pycache__/
 */__pycache__/
 .vscode
 .vscode/
+.mypy_cache
+.mypy_cache/
 
 secret.json
 track.txt

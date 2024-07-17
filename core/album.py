@@ -17,6 +17,9 @@ def GetAlbumById(id: str, auth) -> Album:
     :param id: Album id.
     :param auth: of type AccessTokenClass.
     :return: Album object.
+    
+    Tip that i learnt after an hr: Playlists are not albums.
+    
     """
     base_url = f"https://api.spotify.com/v1/albums/{id}"
     album_data = requests.get(

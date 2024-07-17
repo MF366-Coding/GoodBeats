@@ -133,12 +133,13 @@ class Track:
         return self.ObtainParameter('preview_url')
     
     
-def GetTrackById(id: str, auth) -> Track:
+def GetTrackById(id: str, auth, printJson: bool = False) -> Track:
     """
     Retrieve song and return Track object.
 
     :param id: Song id.
     :param auth: of type AccessTokenClass.
+    :param printJson: Print the JSON data. Defaults to False.
     :return: Track object.
     """
     
@@ -167,7 +168,8 @@ def GetTrackById(id: str, auth) -> Track:
 
         case _:
             print('Some random error I dunno')
-        
-    print(track_data.json())
+    
+    if printJson:
+        print(track_data.json())
     
     return Track(track_data.json())

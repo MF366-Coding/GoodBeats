@@ -4,10 +4,25 @@
 # pylint: disable=E0401
 
 import requests
+from typing import Any
 
 
 class Album:
-    pass
+    def __init__(self, spotify_album: dict):
+        self._album = spotify_album
+
+    def ObtainParameter(self, parameter: str) -> Any:
+        """
+        Retrieve a parameter.
+
+        This should only be used in case there's no equal property.
+
+        :param parameter: The parameter to retrive
+
+        :return: The parameter
+        """
+
+        return self._album[parameter]
 
 
 def GetAlbumById(id: str, auth) -> Album:

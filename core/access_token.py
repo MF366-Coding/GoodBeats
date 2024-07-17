@@ -16,7 +16,7 @@ class AccessTokenClass:
         self.access_token = ""
         self.token_type = ""
 
-    def Generate(self) -> None:
+    def Generate(self):
         """
         Generate access token.
         """
@@ -35,7 +35,8 @@ class AccessTokenClass:
                         "grant_type": "client_credentials",
                         "client_id": values['ClientID'],
                         "client_secret": values['ClientSecret']
-                    }
+                    },
+                    timeout=1
                 )
                 
                 # [i] This took 2 hours to figure out btw ^^^^^^^^^^^^^^^^^^ (skill issue :trollface:)
@@ -57,5 +58,5 @@ class AccessTokenClass:
                 # [i] This took 2 hours to figure out btw ^^^^^^^^^^^^^^^^^^ (skill issue :trollface:)
                 self.access_token, self.token_type = some_shite.json()["access_token"], some_shite.json()["token_type"]
                 
-        # [*] reutrn this type of class itself with self.access_token and self.token_type
+        # [*] return this type of class itself with self.access_token and self.token_type
         return self

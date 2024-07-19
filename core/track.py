@@ -8,21 +8,36 @@ from typing import Any
 
 
 class Track:
-    def __init__(self, spotify_track: dict):
+    def __init__(self, spotify_track: dict, auth):
         self._track = spotify_track
+        self._audio_features = GetTrackAudioFeaturesByID(self.ObtainParameter("id"), auth)
 
-    def ObtainParameter(self, parameter: str) -> Any:
+    def ObtainParameter(self, parameter: str, retrieve_from_track: bool = True) -> Any:
         """
         Retrieve a parameter.
 
         This should only be used in case there's no equal property.
 
-        :param str: The parameter to retrive
+        :param parameter: The parameter to retrive
+        :param retrieve_from_track: Whether to retreieve the param from the track or from the audio features. Defaults to True (track).
 
         :return: The parameter
         """
-        
-        return self._track[parameter]
+
+        if retrieve_from_track:
+            return self._track[parameter]
+
+        return self._audio_features[parameter]
+
+    @property
+    def track_id(self) -> str:
+        """
+        Return the ID of the track.
+
+        :return: Track ID
+        """
+
+        return self.ObtainParameter('id')
 
     @property
     def album_id(self) -> str:
@@ -131,7 +146,118 @@ class Track:
         """
         
         return self.ObtainParameter('preview_url')
-    
+
+    @property
+    def danceability(self) -> float:
+        """
+        How danceable is the song?
+
+        :return: Track's danceability
+        """
+
+        return self.ObtainParameter('danceability', False)
+
+    @property
+    def energy(self) -> float:
+        """
+        How energetic is the song?
+
+        :return: Track's energy
+        """
+
+        # this is particularly high on metal musics xD
+
+        return self.ObtainParameter('energy', False)
+
+    @property
+    def ranked_instrumentalness(self) -> str:
+        """
+        Using Spotify's API, rank how instrumental the song is.
+
+        Sounds like "ooh" and "aaah" are considered instrumental.
+
+        If you want the value and not the label, use `instrumentalness`.
+
+        :return: Label for Instrumentalness
+        """
+
+        instrumentalness_ranked = {
+            0.0: "Not Instrumental",
+            0.1: "Most Likely Not Instrumental",
+            0.2: "Likely Not Instrumental",
+            0.5: "Possibly Instrumental",
+            0.6: "Likely Instrumental",
+            0.9: "Most Likely Instrumental",
+            1.0: "Instrumental"
+        }
+
+        rounded_instrumentalness = round(self.ObtainParameter('instrumentalness', False), 1)
+
+        if rounded_instrumentalness in instrumentalness_ranked:
+            return instrumentalness_ranked[rounded_instrumentalness]
+
+        if rounded_instrumentalness < 0.5:
+            return instrumentalness_ranked[0.2]
+
+        if rounded_instrumentalness > 0.5:
+            return instrumentalness_ranked[0.6]
+
+    @property
+    def instrumentalness(self) -> float:
+        """
+        Using Spotify's API, get a value that represents how instrumental the song is.
+
+        Sounds like "ooh" and "aaah" are considered instrumental.
+
+        :return: instrumentalness as a float
+        """
+
+        return self.ObtainParameter('instrumentalness', False)
+
+    @property
+    def ranked_liveness(self) -> str:
+        """
+        Using Spotify's API, rank if the song is likely to be recorded live.
+
+        If you want the value and not the label, use `liveness`.
+
+        :return: Label rank for liveness
+        """
+
+        liveness_ranked = { # in this one, the safety mark is not 0.5 but 0.8
+            0.0: "Recorded in Studio",
+            0.2: "Most Likely Recorded in Studio",
+            0.5: "Likely Recorded in Studio",
+            0.7: "Possibly Recorded in Studio",
+            0.8: "Likely Played Live",
+            0.9: "Most Likely Played Live",
+            1.0: "Played Live"
+        }
+
+        rounded_liveness = round(self.ObtainParameter('liveness', False), 1)
+
+        if rounded_liveness in liveness_ranked:
+            return liveness_ranked[rounded_liveness]
+
+        if rounded_liveness == 0.1:
+            return liveness_ranked[0.0]
+
+        if rounded_liveness > 0.5:
+            return liveness_ranked[0.2]
+
+        if rounded_liveness == 0.6:
+            return liveness_ranked[0.5]
+
+    @property
+    def liveness(self) -> float:
+        """
+        Using Spotify's API, get a value that represents how likely the song is to be played live.
+
+        :return: liveness as a float
+        """
+
+        return self.ObtainParameter('liveness', False)
+
     
 def GetTrackById(id: str, auth, printJson: bool = False) -> Track:
     """
@@ -149,7 +275,8 @@ def GetTrackById(id: str, auth, printJson: bool = False) -> Track:
         base_url,
         headers={
             "Authorization": f"{auth.token_type} {auth.access_token}"
-        }
+        },
+        timeout=1
     )
     
     # [!] the next code will change. currently for debugging
@@ -172,4 +299,30 @@ def GetTrackById(id: str, auth, printJson: bool = False) -> Track:
     if printJson:
         print(track_data.json())
     
-    return Track(track_data.json())
+    return Track(track_data.json(), auth)
+
+
+def GetTrackAudioFeaturesByID(id: str, auth, printJson: bool = False) -> dict:
+    """
+    Retrieve song and return Track object.
+
+    :param id: Song id.
+    :param auth: of type AccessTokenClass.
+    :param printJson: Print the JSON data. Defaults to False.
+    :return: Track object.
+    """
+
+    base_url = f"https://api.spotify.com/v1/audio-features/{id}"
+
+    track_audio_data = requests.get(
+        base_url,
+        headers={
+            "Authorization": f"{auth.token_type} {auth.access_token}"
+        },
+        timeout=1 # always add a timeout boys...
+    )
+
+    if printJson:
+        print(track_audio_data.json())
+
+    return track_audio_data.json()

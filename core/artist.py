@@ -92,3 +92,24 @@ def GetArtistById(id: str, auth) -> Artist:
     print(artist_data.json())
     
     return Artist(artist_data.json())
+
+
+def GetArtistTopTracks(id: str, auth) -> list[dict]:
+    """
+    Retrieve artist's top tracks and return a list of track dicts.
+
+    :param id: Artist id.
+    :param auth: of type AccessTokenClass.
+    :return: list of tracks.
+    """
+    base_url = f"https://api.spotify.com/v1/artists/{id}/top-tracks"
+    top_tracks = requests.get(
+        base_url,
+        headers={
+            "Authorization": f"{auth.token_type} {auth.access_token}"
+        },
+        timeout=1
+    )
+    print(top_tracks.json())
+
+    return top_tracks.json()['tracks']

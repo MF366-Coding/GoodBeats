@@ -258,6 +258,8 @@ class Track:
 
         return self.ObtainParameter('liveness', False)
 
+    def __str__(self) -> str:
+        return str(self._track)
     
 def GetTrackById(id: str, auth, printJson: bool = False) -> Track:
     """
@@ -326,3 +328,60 @@ def GetTrackAudioFeaturesByID(id: str, auth, printJson: bool = False) -> dict:
         print(track_audio_data.json())
 
     return track_audio_data.json()
+
+
+def SaveTracksToProfile(tracks: list[Track], auth):
+    """
+    Save tracks to the library.
+
+    :param tracks: Tracks to save
+    :param auth: Token represented by the class AccessTokenClass
+    :return:
+    """
+
+    base_url = "https://api.spotify.com/v1/me/tracks"
+
+    track_ids = [track.track_id for track in tracks]
+
+    track_data = requests.put(
+        base_url,
+        json={
+            'ids': track_ids
+        },
+        headers={
+            "Authorization": f"{auth.token_type} {auth.access_token}"
+        },
+        timeout=1
+    )
+
+    # [!] the next code will change. currently for debugging
+    match track_data.status_code:
+        case 401:
+            print(
+                "Bad or expired token. This can happen if the user revoked a token or the access token has expired. You should re-authenticate the user.")
+
+        case 403:
+            print(
+                "Bad OAuth request (wrong consumer key, bad nonce, expired timestamp...). Unfortunately, re-authenticating the user won't help here.")
+
+        case 429:
+            print("The app has exceeded its rate limits.")
+
+        case 200:
+            print('Successssss!')
+
+        case _:
+            print('Some random error I dunno')
+
+
+def GetTracksByDict(track_objects: list[dict], auth) -> list[Track]:
+    """
+    Easy way to convert a list of tracks in form of dicts to a list of tracks in form of Track class.
+
+    :param track_objects: list of tracks in form of dicts
+    :param auth: AccessTokenClass
+    :return: list of tracks in form of instances of Track class
+    """
+
+    return [Track(track_object, auth) for track_object in track_objects]
+

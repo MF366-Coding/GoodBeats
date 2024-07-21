@@ -4,12 +4,14 @@ from typing import Any
 
 class Playlist:
     def __init__(self, spotifyPlaylist: dict) -> None:
-        self._playlist  = spotifyPlaylist
         """
         Initialize the Playlist class with the Spotify playlist data.
 
         :param spotifyPlaylist: Spotify playlist data.
         """
+
+        self._playlist  = spotifyPlaylist
+
 
     def ObtainParameter(self, parameter: str) -> Any:
         """
@@ -17,7 +19,7 @@ class Playlist:
 
         This should only be used in case there's no equal property.
 
-        :param str: The parameter to retrive
+        :param parameter: The parameter to retrive
 
         :return: The parameter
         """
@@ -67,7 +69,6 @@ def getPlaylistById(playlist_id: str, auth) -> Playlist:
     Retrieve playlist details by playlist ID.
 
     :param playlist_id: The ID of the playlist.
-    **:param return_json: Whether to return the raw JSON data. Defaults to False**
     :return: Playlist details as a dictionary.
     """
     base_url = f"https://api.spotify.com/v1/playlists/{playlist_id}"
@@ -88,7 +89,6 @@ def getPlaylistById(playlist_id: str, auth) -> Playlist:
 
     playlist_data = response.json()
 
-    
     return Playlist(playlist_data)
     
     

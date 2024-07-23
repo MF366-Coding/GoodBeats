@@ -6,12 +6,18 @@ import json
 import os
 from urllib.parse import urlencode
 
+
 class SpotifyAuth:
+    secrets_file = os.path.join(os.path.dirname(__file__), "secret.json")
+
+    with open(secrets_file, 'r', encoding='utf-8') as f:
+        secrets = json.load(f)
+
     TOKEN_URL = "https://accounts.spotify.com/api/token"
     AUTH_URL = "https://accounts.spotify.com/authorize"
     REDIRECT_URI = "http://localhost:5000/callback"
-    CLIENT_ID = "6c47f1feb63e4550988c010b9cd10687"
-    CLIENT_SECRET = "5e19d111c36c4f1cb0dbfee37689f910"
+    CLIENT_ID = secrets['ClientID']
+    CLIENT_SECRET = secrets['ClientSecret']
     
     def __init__(self):
         self.session = {}

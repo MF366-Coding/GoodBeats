@@ -1,21 +1,37 @@
-# Hi
+from flask import Flask, jsonify, request
+import requests
+from core.access_token import SpotifyAuth
 
-import core.access_token as access_token
-import core.artist as artist
-import core.album as album
-import core.track as track
+app = Flask(__name__)
 
+@app.route('/playlists', methods=['GET'])
+def get_playlists():
+    # Initialize the SpotifyAuth instance
+    spotify_auth = SpotifyAuth()
+
+    # Get the access token
+    try:
+        access_token = spotify_auth.get_access_token()
+    except KeyError as e:
+        return jsonify({"error": str(e)}), 401
+
+    # Define the endpoint to get the user's playlists
+    playlists_url = "https://api.spotify.com/v1/me/playlists"
+
+    # Make the request to the Spotify Web API
+    response = requests.get(
+        playlists_url,
+        headers={
+            "Authorization": f"Bearer {access_token}"
+        }
+    )
+
+    # Check if the request was successful
+    if response.status_code == 200:
+        playlists = response.json()
+        return jsonify(playlists)
+    else:
+        return jsonify({"error": "Failed to get playlists", "status_code": response.status_code, "response": response.json()}), response.status_code
 
 if __name__ == '__main__':
-    AccessToken = access_token.AccessTokenClass()
-    AccessToken.Generate()
-
-    KORN = artist.GetArtistById("3RNrq3jvMZxD9ZyoOZbQOD", AccessToken)
-    KORN_BEST = artist.GetArtistTopTracks("3RNrq3jvMZxD9ZyoOZbQOD", AccessToken)
-    KORN_TRACKS = track.GetTracksByDict(KORN_BEST, AccessToken)
-
-    print(KORN_TRACKS[0])
-
-    track.SaveTracksToProfile(KORN_TRACKS, AccessToken)
-
-# Rearrange as you wish.
+    app.run(debug=True)

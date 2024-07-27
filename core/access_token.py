@@ -21,9 +21,11 @@ class SpotifyAuth:
             "client_id": self.CLIENT_ID,
             "response_type": "code",
             "redirect_uri": self.REDIRECT_URI,
-            "scope": "user-read-private user-read-email",
+            # Will need to fix scope asap currently has all permissions which is good for testing
+            "scope": "user-read-private user-read-email user-library-read user-library-modify playlist-read-private playlist-modify-public playlist-modify-private user-top-read user-read-recently-played user-read-playback-position user-read-currently-playing user-modify-playback-state user-read-playback-state user-follow-read user-follow-modify",
             "state": "some_random_state",
-            # "show_dialog": True
+            # Remove later only for testing
+            "show_dialog": True
         }
         auth_url = f"{self.AUTH_URL}?{urlencode(params)}"
         return auth_url
@@ -48,6 +50,9 @@ class SpotifyAuth:
         self.session['refresh_token'] = token_json['refresh_token']
         self.session['token_type'] = token_json['token_type']
         self.session['scope'] = token_json['scope']
+        
+        with open('token.json', 'w') as f:
+            json.dump(token_json, f)
 
     def refresh_token(self):
         if 'refresh_token' not in self.session:
@@ -78,24 +83,26 @@ class SpotifyAuth:
         return self.session['access_token']
 
 # Example usage in a Flask app
-# app = Flask(__name__)
-# app.secret_key = '5321-1234-a310'
-# spotify_auth = SpotifyAuth()
+app = Flask(__name__)
+app.secret_key = '5321-1234-a310'
+spotify_auth = SpotifyAuth()
 
-# @app.route('/')
-# def home():
-#     return redirect(spotify_auth.get_authorization_url())
+@app.route('/')
+def home():
+    return redirect(spotify_auth.get_authorization_url())
 
-# @app.route('/callback')
-# def callback():
-#     code = request.args.get('code')
-#     spotify_auth.exchange_code_for_token(code)
-#     return "Authentication successful! You can close this window."
+@app.route('/callback')
+def callback():
+    code = request.args.get('code')
+    spotify_auth.exchange_code_for_token(code)
+    return "Authentication successful! You can close this window."
 
-# @app.route('/token')
-# def token():
-#     access_token = spotify_auth.get_access_token()
-#     return jsonify({'access_token': access_token})
+@app.route('/token')
+def token():
+    access_token = spotify_auth.get_access_token()
+    return jsonify({'access_token': access_token})
 
-# if __name__ == '__main__':
-#     app.run(host='0.0.0.0',debug=True)
+if __name__ == '__main__':
+    app.run(host='0.0.0.0',debug=True)
+    # print token
+    print(token())

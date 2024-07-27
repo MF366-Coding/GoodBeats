@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, redirect
 import requests
 from core.access_token import SpotifyAuth
 
@@ -23,7 +23,8 @@ def get_playlists():
         playlists_url,
         headers={
             "Authorization": f"Bearer {access_token}"
-        }
+        },
+        timeout=1
     )
 
     # Check if the request was successful

@@ -10,6 +10,10 @@ from urllib.parse import urlencode
 class SpotifyAuth:
     secrets_file = os.path.join(os.path.dirname(__file__), "secret.json")
 
+    if not os.path.exists(secrets_file):
+        raise FileNotFoundError(f"Secrets file not found: {secrets_file}")
+
+    
     with open(secrets_file, 'r', encoding='utf-8') as f:
         secrets = json.load(f)
 
@@ -83,32 +87,54 @@ class SpotifyAuth:
             self.session['token_type'] = token_json['token_type']
             self.session['scope'] = token_json['scope']
 
-    def get_access_token(self):
-        if 'access_token' not in self.session or datetime.now().timestamp() > self.session['expires_in']:
-            self.refresh_token()
-        return self.session['access_token']
+    # Probably redundant
+    # def get_access_token(self):
+    #     if 'access_token' not in self.session or datetime.now().timestamp() > self.session['expires_in']:
+    #         self.refresh_token()
+    #     return self.session['access_token']
+
+# Basically after all THE SHIT up above this is the abstraction
+class AccessTokenClass:
+    def __init__(self, token_file='token.json'):
+        self.token_file = token_file
+
+    def Generate(self):
+        try:
+            with open(self.token_file, 'r', encoding='utf-8') as file:
+                data = json.load(file)
+                self.access_token = data["access_token"]
+                self.token_type = data["token_type"]
+                return self
+        except FileNotFoundError:
+            print("AcessTokenClass here, Im calling an error so the error offically means that the file isnt found but its prolly something else")
+
+
+# Code only if ran from another file
+# later
+
 
 # Example usage in a Flask app
-app = Flask(__name__)
-app.secret_key = '5321-1234-a310'
-spotify_auth = SpotifyAuth()
-
-@app.route('/')
-def home():
-    return redirect(spotify_auth.get_authorization_url())
-
-@app.route('/callback')
-def callback():
-    code = request.args.get('code')
-    spotify_auth.exchange_code_for_token(code)
-    return "Authentication successful! You can close this window."
-
-@app.route('/token')
-def token():
-    access_token = spotify_auth.get_access_token()
-    return jsonify({'access_token': access_token})
-
 if __name__ == '__main__':
-    app.run(host='0.0.0.0',debug=True)
-    # print token
-    print(token())
+    app = Flask(__name__)
+    app.secret_key = '5321-1234-a310'
+    spotify_auth = SpotifyAuth()
+
+    @app.route('/')
+    def home():
+        return redirect(spotify_auth.get_authorization_url())
+
+    @app.route('/callback')
+    def callback():
+        code = request.args.get('code')
+        spotify_auth.exchange_code_for_token(code)
+        return "Authentication successful! You can close this window."
+
+    @app.route('/token')
+    def token():
+        access_token = spotify_auth.get_access_token()
+        return jsonify({'access_token': access_token})
+
+    if __name__ == '__main__':
+        app.run(host='0.0.0.0',debug=True)
+        # print token
+        print(token())

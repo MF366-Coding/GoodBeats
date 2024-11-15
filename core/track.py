@@ -30,7 +30,7 @@ class Track:
         return self._audio_features[parameter]
 
     @property
-    def track_id(self) -> str:
+    def trackId(self) -> str:
         """
         Return the ID of the track.
 
@@ -40,7 +40,7 @@ class Track:
         return self.ObtainParameter('id')
 
     @property
-    def album_id(self) -> str:
+    def albumId(self) -> str:
         """
         Return the ID of the album where this track is.
 
@@ -50,7 +50,7 @@ class Track:
         return self.ObtainParameter("album")["id"] # [i] this can be used to get the album
     
     @property
-    def artist_ids(self) -> list[str]:
+    def artistIds(self) -> list[str]:
         """
         Return the IDs of the artists.
         
@@ -69,7 +69,7 @@ class Track:
         return ids
     
     @property
-    def track_duration(self) -> int:
+    def trackDuration(self) -> int:
         """
         Return the duration of the track in miliseconds.
         
@@ -79,7 +79,7 @@ class Track:
         return self.ObtainParameter('duration_ms')
     
     @property
-    def explicit(self) -> bool:
+    def isExplicit(self) -> bool:
         """
         Is the song explicit (a.k.a. contains slurs/swearing)?
         
@@ -90,7 +90,7 @@ class Track:
         return self.ObtainParameter('explicit')
 
     @property
-    def is_playable(self) -> bool:
+    def isPlayable(self) -> bool:
         """
         Can the song be played in the current market?
         
@@ -106,7 +106,7 @@ class Track:
         return self.ObtainParameter('is_playable')
     
     @property
-    def track_name(self) -> str:
+    def trackName(self) -> str:
         """
         Uhhhh... It really can't get more obvious that this...
         
@@ -133,7 +133,7 @@ class Track:
         return self.ObtainParameter('popularity')
     
     @property
-    def preview_url(self) -> str | None:
+    def previewUrl(self) -> str | None:
         """
         Link to a 30 sec preview of the song.
         
@@ -170,7 +170,7 @@ class Track:
         return self.ObtainParameter('energy', False)
 
     @property
-    def ranked_instrumentalness(self) -> str:
+    def rankedInstrumentalness(self) -> str:
         """
         Using Spotify's API, rank how instrumental the song is.
 
@@ -215,7 +215,7 @@ class Track:
         return self.ObtainParameter('instrumentalness', False)
 
     @property
-    def ranked_liveness(self) -> str:
+    def rankedLiveness(self) -> str:
         """
         Using Spotify's API, rank if the song is likely to be recorded live.
 
@@ -260,6 +260,9 @@ class Track:
 
     def __str__(self) -> str:
         return str(self._track)
+
+    def __getitem__(self, value: str) -> Any:
+        return self.ObtainParameter(value)
     
 def GetTrackById(id: str, auth, printJson: bool = False) -> Track:
     """

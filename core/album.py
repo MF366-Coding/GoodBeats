@@ -145,7 +145,8 @@ class Album:
         
         return self.ObtainParameter("label")
 
-
+    def __getitem__(self, value: str) -> Any:
+        return self.ObtainParameter(value)
 
 def GetAlbumById(id: str, auth) -> Album:
     """

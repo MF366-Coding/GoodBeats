@@ -73,6 +73,9 @@ class Artist:
         
         return self.ObtainParameter("genres")
 
+    def __getitem__(self, value: str) -> Any:
+        return self.ObtainParameter(value)
+
 
 def GetArtistById(id: str, auth) -> Artist:
     """
